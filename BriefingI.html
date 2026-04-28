@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Vendor Language Brief No. 001 — What "Data Incident" Actually Means in the Google CDPA — The Language Firm</title>
+<meta name="description" content="A forensic read on Section 7.2.1 of the Google Cloud Data Processing Addendum, showing how the definition of Data Incident narrows the notification obligation before it is read.">
+<meta name="author" content="J. Sharp, The Language Firm">
+<meta property="og:title" content="The Vendor Language Brief No. 001">
+<meta property="og:description" content="What 'Data Incident' actually means in the Google Cloud Data Processing Addendum.">
+<meta property="og:type" content="article">
+
+<style>
+:root {
+  --tlf-navy: #1A1A2E;
+  --tlf-navy-indigo: #2D3561;
+  --tlf-rust: #C84B31;
+  --tlf-periwinkle: #D0D4E8;
+  --tlf-rust-tint: #FAECE7;
+  --tlf-text: #1A1A2E;
+  --tlf-text-muted: #5F5E5A;
+  --tlf-rule: #D0D4E8;
+  --tlf-cream: #FAF8F4;
+  --tlf-paper: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--tlf-paper);
+  color: var(--tlf-text);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 18px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Top header bar — matches TLF print spec */
+.tlf-header-bar {
+  background: var(--tlf-navy);
+  color: #fff;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 14px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tlf-header-bar a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.tlf-header-left { font-weight: 700; }
+.tlf-header-right { color: var(--tlf-periwinkle); font-weight: 400; }
+
+/* Top accent stripe */
+.tlf-accent-stripe {
+  height: 4px;
+  background: var(--tlf-rust);
+}
+
+/* Main column */
+.brief {
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 56px 8% 96px;
+  background: var(--tlf-paper);
+  border: none;
+  min-height: 100vh;
+}
+
+.brief > * {
+  max-width: 760px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Full-bleed elements are exempted */
+.brief .action-line,
+.brief .action-disclaimer,
+.brief .implications {
+  max-width: 760px;
+}
+
+/* Masthead */
+.masthead {
+  border-bottom: 1px solid var(--tlf-rule);
+  padding-bottom: 28px;
+  margin-bottom: 40px;
+}
+
+.masthead-eyebrow {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tlf-rust);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.masthead-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin: 0 0 18px;
+  color: var(--tlf-navy);
+  letter-spacing: -0.01em;
+}
+
+.masthead-meta {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  color: var(--tlf-text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.masthead-meta strong {
+  color: var(--tlf-text);
+  font-weight: 600;
+}
+
+/* Section labels — small caps style */
+.section-label {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tlf-rust);
+  margin: 48px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--tlf-rule);
+}
+
+/* Source callout box */
+.source-block {
+  background: var(--tlf-cream);
+  border-left: 3px solid var(--tlf-navy-indigo);
+  padding: 18px 22px;
+  margin: 0 0 28px;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--tlf-text);
+}
+
+.source-block p { margin: 0 0 6px; }
+.source-block p:last-child { margin: 0; }
+.source-block strong { color: var(--tlf-navy); }
+
+/* The clause itself — the focal artifact */
+.clause-quote {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--tlf-navy);
+  background: var(--tlf-paper);
+  border-left: 4px solid var(--tlf-rust);
+  padding: 20px 26px;
+  margin: 0 0 18px;
+  position: relative;
+}
+
+.clause-quote::before {
+  content: "\201C";
+  position: absolute;
+  top: 4px;
+  left: 12px;
+  font-size: 56px;
+  color: var(--tlf-rust);
+  opacity: 0.25;
+  font-family: Georgia, serif;
+  line-height: 1;
+}
+
+.clause-quote p {
+  margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.clause-quote .citation {
+  display: block;
+  margin-top: 10px;
+  font-style: normal;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  color: var(--tlf-text-muted);
+  letter-spacing: 0.04em;
+}
+
+/* Reach paragraph that follows the clause */
+.reach-note {
+  font-size: 17px;
+  color: var(--tlf-text-muted);
+  font-style: italic;
+  margin: 0 0 16px;
+}
+
+/* Findings */
+.finding {
+  margin: 0 0 36px;
+}
+
+.finding-title {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--tlf-navy);
+  margin: 0 0 12px;
+  line-height: 1.4;
+}
+
+.finding-number {
+  display: inline-block;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--tlf-rust);
+  text-transform: uppercase;
+  margin-right: 10px;
+}
+
+.finding p {
+  margin: 0 0 14px;
+}
+
+.finding p:last-child { margin-bottom: 0; }
+
+/* Body paragraphs */
+.brief p {
+  margin: 0 0 18px;
+}
+
+/* What This Means section */
+.implications {
+  background: var(--tlf-cream);
+  padding: 28px 32px;
+  margin: 24px 0 0;
+  border-top: 1px solid var(--tlf-rule);
+  border-bottom: 1px solid var(--tlf-rule);
+}
+
+.implications p:last-child { margin-bottom: 0; }
+
+/* Pre-action disclaimer */
+.action-disclaimer {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--tlf-text-muted);
+  margin: 36px 0 0;
+  padding: 14px 18px;
+  background: var(--tlf-rust-tint);
+  border-left: 3px solid var(--tlf-rust);
+}
+
+/* Action line — the most visible single element */
+.action-line {
+  background: var(--tlf-navy);
+  color: #fff;
+  padding: 32px 36px;
+  margin: 0;
+  border-radius: 0;
+}
+
+.action-line .action-eyebrow {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tlf-rust);
+  font-weight: 700;
+  margin: 0 0 14px;
+}
+
+.action-line p {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.6;
+  margin: 0 0 14px;
+  color: #fff;
+}
+
+.action-line p:last-child { margin: 0; }
+
+.action-line .question-quote {
+  font-style: italic;
+  color: var(--tlf-periwinkle);
+}
+
+/* Method note */
+.method-note {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--tlf-text-muted);
+  font-style: italic;
+  border-top: 1px solid var(--tlf-rule);
+  padding-top: 24px;
+  margin: 56px 0 0;
+}
+
+.method-note a { color: var(--tlf-navy-indigo); }
+
+/* Colophon */
+.colophon {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--tlf-text-muted);
+  margin: 36px 0 0;
+  padding-top: 24px;
+  border-top: 1px solid var(--tlf-rule);
+}
+
+.colophon p { margin: 0 0 12px; }
+.colophon p:last-child { margin: 0; }
+.colophon .citation-format {
+  background: var(--tlf-cream);
+  padding: 12px 16px;
+  border-left: 2px solid var(--tlf-rule);
+  font-family: Georgia, serif;
+  font-style: italic;
+  font-size: 13px;
+  color: var(--tlf-text);
+}
+
+/* Footer rule */
+.brief-footer {
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--tlf-text-muted);
+  margin-top: 56px;
+  padding-top: 20px;
+  border-top: 2px solid var(--tlf-navy);
+}
+
+.brief-footer a {
+  color: var(--tlf-text-muted);
+  text-decoration: none;
+}
+
+.brief-footer a:hover { color: var(--tlf-navy); }
+
+/* Responsive */
+@media (max-width: 640px) {
+  .tlf-header-bar {
+    padding: 12px 18px;
+    font-size: 10px;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+  }
+  .brief {
+    padding: 32px 22px 64px;
+    border: none;
+  }
+  .masthead-title { font-size: 28px; }
+  body { font-size: 17px; }
+  .clause-quote { font-size: 17px; padding: 18px 20px; }
+  .action-line { padding: 24px 24px; }
+  .action-line p { font-size: 16px; }
+  .implications { padding: 22px 22px; }
+}
+
+/* Print styles — for the save-as-PDF use case */
+@media print {
+  body { background: #fff; font-size: 11pt; }
+  .tlf-header-bar, .tlf-accent-stripe, .brief-footer { display: none; }
+  .brief {
+    max-width: none;
+    padding: 0.5in;
+    border: none;
+  }
+  .masthead-title { font-size: 22pt; }
+  .clause-quote {
+    background: #fff;
+    page-break-inside: avoid;
+  }
+  .action-line {
+    background: #fff !important;
+    color: #000 !important;
+    border: 2px solid #000;
+    padding: 20px;
+    page-break-inside: avoid;
+  }
+  .action-disclaimer {
+    background: #fff !important;
+    border-left: 2px solid #000;
+    color: #000 !important;
+    page-break-inside: avoid;
+  }
+  .action-line p, .action-line .action-eyebrow {
+    color: #000 !important;
+  }
+  .action-line .question-quote { color: #444 !important; }
+  .implications { background: #fff; }
+  .finding { page-break-inside: avoid; }
+  .section-label { color: #000; }
+  a { color: #000; text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="tlf-header-bar">
+  <span class="tlf-header-left">The Language Firm</span>
+  <span class="tlf-header-right">The Vendor Language Brief &nbsp;·&nbsp; No. 001</span>
+</div>
+<div class="tlf-accent-stripe"></div>
+
+<article class="brief">
+
+  <header class="masthead">
+    <p class="masthead-eyebrow">The Vendor Language Brief &nbsp;·&nbsp; Issue 001</p>
+    <h1 class="masthead-title">What "Data Incident" Actually Means in the Google Cloud Data Processing Addendum</h1>
+    <p class="masthead-meta">
+      <strong>Filed by J. Sharp</strong> &nbsp;·&nbsp; The Language Firm &nbsp;·&nbsp; Tuesday, April 28, 2026
+    </p>
+  </header>
+
+  <div class="section-label">This Week's Clause</div>
+
+  <div class="source-block">
+    <p><strong>Source:</strong> Google Cloud Data Processing Addendum, Section 7.2.1 (Incident Notification), with the supporting definition of "Data Incident" at Section 2.1.</p>
+    <p><strong>Pulled:</strong> April 28, 2026 from cloud.google.com/terms/data-processing-addendum.</p>
+    <p><strong>Document type:</strong> Cloud Data Processing Addendum (CDPA), processor-to-controller terms. The CDPA was formerly the Data Processing Amendment for Google Workspace and Cloud Identity. It is incorporated by reference into Google Workspace for Education agreements.</p>
+  </div>
+
+  <div class="clause-quote">
+    <p>Google will notify Customer promptly and without undue delay after becoming aware of a Data Incident, and promptly take reasonable steps to minimize harm and secure Customer Data.</p>
+    <span class="citation">— Section 7.2.1, Incident Notification</span>
+  </div>
+
+  <div class="clause-quote">
+    <p><em>Data Incident</em> means a breach of Google's security leading to the accidental or unlawful destruction, loss, alteration, unauthorized disclosure of, or access to, Customer Data on systems managed by or otherwise controlled by Google.</p>
+    <span class="citation">— Section 2.1, Definitions</span>
+  </div>
+
+  <p class="reach-note">This addendum sits underneath the majority of U.S. K-12 districts. Most board members and most superintendents have never read these two sentences side by side.</p>
+
+  <div class="section-label">The Forensic Read</div>
+
+  <p>Three findings, ranked by what a district should care about. Each finding pairs the operative phrase with what the phrase does in the document.</p>
+
+  <div class="finding">
+    <h3 class="finding-title"><span class="finding-number">Finding 01</span>The defined term narrows the obligation before the obligation is read.</h3>
+    <p>The notification commitment in 7.2.1 applies to a "Data Incident." The definition of Data Incident is in Section 2.1, separated from the notification clause by all of the intervening sections. A reader who arrives at 7.2.1 without re-reading the definition will assume the obligation covers any compromise of customer data. The definition does not say that. It says a Data Incident is "a breach of Google's security leading to" the harms listed. Three filters are stacked into that phrase: it must be a breach (not a misconfiguration, not a vendor error, not a third-party action absent breach), it must be of Google's security (not a subprocessor's, not an upstream provider's), and the harm must lead from that breach.</p>
+    <p>An incident that affects customer data through a route that does not begin with a breach of Google's own security is not a Data Incident under this addendum, and the notification clause never activates. The definition is doing work the notification clause does not appear to be doing.</p>
+  </div>
+
+  <div class="finding">
+    <h3 class="finding-title"><span class="finding-number">Finding 02</span>The trigger is awareness, not occurrence, and awareness is not defined.</h3>
+    <p>Section 7.2.1 begins the notification obligation with "after becoming aware of." This is a conditional, not an obligation. Google is not committed to a detection capability, a monitoring posture, or a maximum elapsed time between the occurrence of a Data Incident and the start of the notification clock. The clock starts when Google becomes aware. Awareness is not defined anywhere in the addendum.</p>
+    <p>There is no internal escalation timeline, no committed time-to-detect, no requirement that awareness reach a particular function or role within Google by a particular hour. A Data Incident that occurs Monday and is recognized as such by the relevant Google team Friday produces a notification obligation that begins Friday. The four days are inside the awareness gap, and inside the awareness gap the customer is, by the operative language, owed nothing.</p>
+  </div>
+
+  <div class="finding">
+    <h3 class="finding-title"><span class="finding-number">Finding 03</span>The two action verbs are wrapped in three softeners and one disclaimer.</h3>
+    <p>The clause contains two operative verb phrases: "will notify" and "[will] take reasonable steps." Around those two verbs, the clause inserts "promptly and without undue delay" before notification, "promptly" before remediation, and "reasonable" before the steps themselves. None of the three is defined or quantified inside the addendum. "Promptly" appears twice in Section 7.2.1 alone, and the related phrase "without undue delay" reappears in 7.2.2 ("further information will be provided without undue delay as it becomes available"), never tied to a number of hours. Compare to GDPR Article 33, which caps notification at 72 hours from awareness, and to the SDPC National Data Privacy Agreement, which specifies 72 hours from confirmation, written into the standard NDPA text. Note that GDPR's clock also starts at awareness, not at occurrence, but GDPR caps the awareness-to-notification window; the Google CDPA leaves it open. The Google clause specifies neither a cap nor a number.</p>
+    <p>The disclaimer arrives in 7.2.4: "Google's notification of or response to a Data Incident under this Section 7.2 (Data Incidents) will not be construed as an acknowledgement by Google of any fault or liability with respect to the Data Incident." Notification is decoupled from accountability inside the same section that creates the notification obligation. The act of telling the district that something has happened cannot be used by the district as evidence that anything was Google's fault. The customer receives the information and receives, simultaneously, a contractual instruction not to read meaning into the fact that they received it.</p>
+  </div>
+
+  <div class="section-label">What This Means</div>
+
+  <div class="implications">
+    <p>If you are a superintendent or technology director at a district that uses Google Workspace for Education, the addendum you signed does the following four things at the same time. It limits the events that trigger notification to a narrow class defined as breaches of Google's security. It starts the notification clock when Google becomes aware, not when an incident occurs, and it does not commit Google to any particular speed of becoming aware. It commits Google to notification and to remediation steps on a timeline that is described in adverbs rather than hours. It states that the notification, once received, is not evidence of Google's fault.</p>
+    <p>This is not a defective set of clauses. It is a sophisticated set of clauses, drafted to do exactly what each phrase does. The strength readers perceive in "promptly and without undue delay" is in the rhythm of the phrase, not in the operative terms. The strength readers perceive in "Data Incident" is in the assumed scope, not in the defined scope.</p>
+    <p>This matters under FERPA, COPPA, and state student data privacy laws because the <em>district</em> is the entity legally responsible for notifying parents when a notifiable event occurs. The district's notification clock is set by state law, not by the addendum. A district whose vendor contract gives the vendor unmeasured discretion on detection, escalation, and notification timing has accepted a contract structure in which the vendor's clock does not have to align with the district's clock. The gap between the two clocks is the district's exposure, and the addendum does not close it.</p>
+  </div>
+
+  <div class="action-disclaimer">
+    This brief is not legal advice. The Action Line is a starting point for a conversation with your district's counsel, not a substitute for it.
+  </div>
+
+  <div class="action-line">
+    <p class="action-eyebrow">The Action Line</p>
+    <p>This week, send one email to your Google account representative with two sentences.</p>
+    <p class="question-quote">First: "What is Google's committed maximum elapsed time, in hours, between the occurrence of a Data Incident affecting our domain and notification to our designated security contact?"</p>
+    <p class="question-quote">Second: "Does Google commit to notify our district of security incidents affecting our Customer Data that fall outside the Section 2.1 definition of Data Incident, and if so, on what timeline?"</p>
+    <p>File the response, the partial response, or the non-response in your governance binder. All three are evidence. A non-answer is itself the finding.</p>
+  </div>
+
+  <p class="method-note">
+    This brief uses the Forensic Read, a four-stage method (Read, Trace, Surface, Translate) for analyzing the operative language of vendor agreements, privacy policies, and federal compliance documents. Stage 1 inventories modal verbs, agentless passives, and indefinite phrases. Stage 2 traces how those features distribute across the clause. Stage 3 surfaces what the distribution conceals or commits. Stage 4 translates the finding into action a named accountable human can take. The full method is at <a href="https://www.languagefirm.org/the-forensic-read">languagefirm.org/the-forensic-read</a>.
+  </p>
+
+  <div class="colophon">
+    <p>The Vendor Language Brief is a free weekly publication of The Language Firm. It is not legal advice. Each issue performs a forensic read on one piece of vendor language used widely in K-12 or higher education. Issues are filed Tuesdays. The public archive begins with Issue 002; this inaugural issue is the reference issue for the format. Forthcoming archive: <a href="https://www.languagefirm.org/toolvault">languagefirm.org/toolvault</a>.</p>
+    <div class="citation-format">
+      To cite this issue: Sharp, J. (April 28, 2026). "What 'Data Incident' Actually Means in the Google CDPA." The Vendor Language Brief, Issue 001. The Language Firm. languagefirm.org/toolvault.
+    </div>
+  </div>
+
+  <div class="brief-footer">
+    The Language Firm &nbsp;·&nbsp; languagefirm.org
+  </div>
+
+</article>
+
+</body>
+</html>
